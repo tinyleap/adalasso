@@ -11,3 +11,5 @@ Encoding: UTF-8
 LazyData: true
 Imports: glmnet
 Suggests: mvtnorm
+URL: http://github.com/tinyleap/adalasso
+BugReports: http://github.com/tinyleap/adalasso/issues
