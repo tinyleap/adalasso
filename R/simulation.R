@@ -29,7 +29,7 @@ getz <- function(N, p) {
     j = 0
     while (j < (p/m1)) {
         j = j + 1
-        z = cbind(z, rmvnorm(N, mean = rep(0, m1), sigma = Corr1))
+        z = cbind(z, mvtnorm::rmvnorm(N, mean = rep(0, m1), sigma = Corr1))
     }
     return(z)
 }

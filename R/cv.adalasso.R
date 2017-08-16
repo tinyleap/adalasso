@@ -2,7 +2,7 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
                                                                                                    ncol(X)), ...) {
     n <- nrow(X)
     p <- ncol(X)
-    lasso.fit <- cv.glmnet(X, Y, standardize = standardize, alpha = alpha[1], penalty.factor = penalty,
+    lasso.fit <- glmnet::cv.glmnet(X, Y, standardize = standardize, alpha = alpha[1], penalty.factor = penalty,
                            ...)
     temp <- coef(lasso.fit, s = "lambda.min")
     coef.lasso <- temp[-1]
@@ -14,7 +14,7 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
                     inter.lasso = inter.lasso))
     } else if (all(penalty2 == 0)) {
         XX <- X[, idx, drop = FALSE]
-        adalasso.fit <- glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = 0, ...)
+        adalasso.fit <- glmnet::glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = 0, ...)
         temp <- coef(adalasso.fit)
         coef.adalasso <- rep(0, p)
         coef.adalasso[idx] <- temp[-1]
@@ -25,7 +25,7 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
         multi <- abs(coef.lasso[idx])
         lambda.list <- lasso.fit$lambda
         XX <- X[, idx, drop = FALSE] %*% diag(multi)
-        adalasso.fit <- glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = lambda.list, penalty.factor = penalty2,
+        adalasso.fit <- glmnet::glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = lambda.list, penalty.factor = penalty2,
                                ...)
         idx2 <- idx
         multi2 <- multi
@@ -39,7 +39,7 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
         Ytrain <- Y[train.idx]
         Xtest <- X[-train.idx, , drop = FALSE]
         Ytest <- Y[-train.idx]
-        fit <- cv.glmnet(Xtrain, Ytrain, standardize = standardize, alpha = alpha[1], lambda = lambda.list,
+        fit <- glmnet::cv.glmnet(Xtrain, Ytrain, standardize = standardize, alpha = alpha[1], lambda = lambda.list,
                          penalty.factor = penalty, ...)
         temp <- coef(fit, s = "lambda.min")
         coef <- temp[-1]
@@ -50,7 +50,7 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
             multi <- abs(coef[idx])
             XXtrain <- Xtrain[, idx, drop = FALSE] %*% diag(multi)
             XXtest <- Xtest[, idx, drop = FALSE] %*% diag(multi)
-            fit <- glmnet(XXtrain, Ytrain, standardize = FALSE, alpha = alpha[2], lambda = lambda.list,
+            fit <- glmnet::glmnet(XXtrain, Ytrain, standardize = FALSE, alpha = alpha[2], lambda = lambda.list,
                           penalty.factor = penalty2, ...)
             pred <- predict(fit, newx = XXtest, type = "response")
             if (length(train.idx) == n - 1)
@@ -78,7 +78,7 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
                             ...) {
     n <- nrow(X)
     p <- ncol(X)
-    lasso.fit <- cv.glmnet(X, Y, family = "cox", standardize = standardize, alpha = alpha[1], penalty.factor = penalty,
+    lasso.fit <- glmnet::cv.glmnet(X, Y, family = "cox", standardize = standardize, alpha = alpha[1], penalty.factor = penalty,
                            ...)
     temp <- coef(lasso.fit, s = "lambda.min")
     coef.lasso <- temp[, 1]
@@ -88,7 +88,7 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
         return(list(coef.adalasso = coef.lasso, coef.lasso = coef.lasso))
     } else if (all(penalty2 == 0)) {
         XX <- X[, idx, drop = FALSE]
-        adalasso.fit <- glmnet(XX, Y, family = "cox", standardize = FALSE, alpha = alpha[2], lambda = 0,
+        adalasso.fit <- glmnet::glmnet(XX, Y, family = "cox", standardize = FALSE, alpha = alpha[2], lambda = 0,
                                ...)
         temp <- coef(adalasso.fit)
         coef.adalasso <- rep(0, p)
@@ -98,7 +98,7 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
         multi <- abs(coef.lasso[idx])
         lambda.list <- lasso.fit$lambda
         XX <- X[, idx, drop = FALSE] %*% diag(multi)
-        adalasso.fit <- glmnet(XX, Y, family = "cox", standardize = FALSE, alpha = alpha[2], lambda = lambda.list,
+        adalasso.fit <- glmnet::glmnet(XX, Y, family = "cox", standardize = FALSE, alpha = alpha[2], lambda = lambda.list,
                                penalty.factor = penalty2, ...)
         idx2 <- idx
         multi2 <- multi
@@ -112,7 +112,7 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
         Ytrain <- Y[train.idx, , drop = FALSE]
         Xtest <- X[-train.idx, , drop = FALSE]
         Ytest <- Y[-train.idx, , drop = FALSE]
-        fit <- cv.glmnet(Xtrain, Ytrain, family = "cox", standardize = standardize, alpha = alpha[1],
+        fit <- glmnet::cv.glmnet(Xtrain, Ytrain, family = "cox", standardize = standardize, alpha = alpha[1],
                          lambda = lambda.list, penalty.factor = penalty, ...)
         temp <- coef(fit, s = "lambda.min")
         coef <- temp[, 1]
@@ -122,7 +122,7 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
             multi <- abs(coef[idx])
             XXtrain <- Xtrain[, idx, drop = FALSE] %*% diag(multi)
             XX <- X[, idx, drop = FALSE] %*% diag(multi)
-            fit <- glmnet(XXtrain, Ytrain, family = "cox", standardize = FALSE, alpha = alpha[2], lambda = lambda.list,
+            fit <- glmnet::glmnet(XXtrain, Ytrain, family = "cox", standardize = FALSE, alpha = alpha[2], lambda = lambda.list,
                           penalty.factor = penalty2, ...)
             pred <- predict(fit, type = "coefficients")
             for (j in 1:length(lambda.list)) {
