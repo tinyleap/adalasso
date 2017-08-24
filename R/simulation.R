@@ -1,13 +1,3 @@
-FPFNSeSpLik = function(TrueBeta = TrueBeta, beta = beta) {
-    FP <- length(which(TrueBeta == 0 & beta != 0))
-    FN <- length(which(TrueBeta != 0 & beta == 0))
-    Se <- length(which(TrueBeta != 0 & beta != 0))/length(which(TrueBeta != 0))
-    Sp <- length(which(TrueBeta == 0 & beta == 0))/length(which(TrueBeta == 0))
-    FDP = FP/length(which(beta != 0))
-    output = c(FP, FN, Se, Sp, FDP)
-    names(output) <- c('FP', 'FN', 'Se', 'Sp', 'FDP')
-    return(output)
-}
 AR1 <- function(tau, m) {
     if (m == 1) {
         R <- 1
@@ -55,7 +45,7 @@ bandy <- function(z, p_true, varatio = 4, method = 1, standardize = T, family = 
     if (family == "gaussian") {
         Y1 <- z %*% TrueBeta + rnorm(N, sd = 1)
         class(Y1) <- c(class(Y1), family)
-        return(list(z = z, beta = TrueBeta, y = Y1))
+        return(list(z = z, beta = TrueBeta, y = Y1[,]))
     }
     if (family == "binomial") {
         prob = 1/(1 + exp(-z %*% TrueBeta))
@@ -80,15 +70,4 @@ bandy <- function(z, p_true, varatio = 4, method = 1, standardize = T, family = 
         class(Y3) <- c(class(Y3), family)
         return(list(z = z2, beta = TrueBeta, y = Y3))
     }
-}
-uni <- function(z, y) {
-    p <- dim(z)[2]
-    pvalue <- rep(0, p)
-    for (i in 1:p) {
-        fit <- lm(y ~ z[, i])
-        pvalue[i] <- summary(fit)$coef[-1, 4]
-    }
-    p.bon <- p.adjust(pvalue, "bonferroni")
-    p.fdr <- p.adjust(pvalue, "fdr")
-    list(p.bonferroni = p.bon, p.fdr = p.fdr)
 }
