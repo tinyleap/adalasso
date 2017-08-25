@@ -44,8 +44,9 @@ bandy <- function(z, p_true, varatio = 4, method = 1, standardize = T, family = 
 
     if (family == "gaussian") {
         Y1 <- z %*% TrueBeta + rnorm(N, sd = 1)
+        Y1 <- c(Y1)
         class(Y1) <- c(class(Y1), family)
-        return(list(z = z, beta = TrueBeta, y = Y1[,]))
+        return(list(z = z, beta = TrueBeta, y = Y1))
     }
     if (family == "binomial") {
         prob = 1/(1 + exp(-z %*% TrueBeta))

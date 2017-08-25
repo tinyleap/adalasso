@@ -1,9 +1,8 @@
 adalasso.gaussian <- function(X, Y, lambda, standardize = FALSE, alpha = c(1, 1), penalty = rep(1, ncol(X)), ...) {
     n <- nrow(X)
     p <- ncol(X)
-    lasso.fit <- glmnet::glmnet(X, Y, standardize = standardize, alpha = alpha[1], penalty.factor = penalty, lambda = lambda[1],
-                        ...)
-    temp <- coef(lasso.fit)
+    lasso.fit <- glmnet::cv.glmnet(X, Y, standardize = standardize, alpha = alpha[1], penalty.factor = penalty, ...)
+    temp <- coef(lasso.fit, s = 'lambda.min')
     coef.lasso <- temp[-1]
     inter.lasso <- temp[1]
     idx <- which(coef.lasso != 0)
@@ -23,12 +22,12 @@ adalasso.gaussian <- function(X, Y, lambda, standardize = FALSE, alpha = c(1, 1)
     } else {
         multi <- abs(coef.lasso[idx])
         XX <- X[, idx, drop = FALSE] %*% diag(multi)
-        adalasso.fit <- glmnet::glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = lambda[2], penalty.factor = penalty2,
+        adalasso.fit <- glmnet::glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = lambda, penalty.factor = penalty2,
                                ...)
-        temp <- coef(adalasso.fit)
-        inter.adalasso <- temp[1]
-        coef.adalasso <- rep(0, p)
-        coef.adalasso[idx] <- temp[-1] * multi
+        temp <- as.matrix(coef(adalasso.fit))
+        inter.adalasso <- temp[1, ]
+        coef.adalasso <- matrix(0, p, dim(temp)[2])
+        coef.adalasso[idx, ] <- temp[-1, ] * multi
         return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso, inter.adalasso = inter.adalasso,
                     inter.lasso = inter.lasso))
     }
@@ -41,9 +40,8 @@ adalasso.binomial <- function(X, Y, lambda, standardize = FALSE, alpha = c(1, 1)
 adalasso.cox <- function(X, Y, lambda, standardize = FALSE, alpha = c(1, 1), penalty = rep(1, ncol(X)), ...) {
     n <- nrow(X)
     p <- ncol(X)
-    lasso.fit <- glmnet::glmnet(X, Y, family = 'cox', standardize = standardize, alpha = alpha[1], penalty.factor = penalty, lambda = lambda[1],
-                                ...)
-    temp <- coef(lasso.fit)
+    lasso.fit <- glmnet::cv.glmnet(X, Y, family = 'cox', standardize = standardize, alpha = alpha[1], penalty.factor = penalty, ...)
+    temp <- coef(lasso.fit, s = 'lambda.min')
     coef.lasso <- temp[, 1]
     idx <- which(coef.lasso != 0)
     penalty2 <- penalty[idx]
@@ -54,20 +52,18 @@ adalasso.cox <- function(X, Y, lambda, standardize = FALSE, alpha = c(1, 1), pen
         adalasso.fit <- glmnet::glmnet(XX, Y, family = 'cox', standardize = FALSE, alpha = alpha[2], lambda = 0, ...)
         temp <- coef(adalasso.fit)
         coef.adalasso <- rep(0, p)
-        coef.adalasso[idx] <- temp[-1]
+        coef.adalasso[idx] <- temp[, 1]
         return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso))
     } else {
         multi <- abs(coef.lasso[idx])
         XX <- X[, idx, drop = FALSE] %*% diag(multi)
-        adalasso.fit <- glmnet::glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = lambda[2], penalty.factor = penalty2,
-                               ...)
-        temp <- coef(adalasso.fit)
-        coef.adalasso <- rep(0, p)
-        coef.adalasso[idx] <- temp[, 1] * multi
+        adalasso.fit <- glmnet::glmnet(XX, Y, standardize = FALSE, alpha = alpha[2], lambda = lambda, penalty.factor = penalty2, ...)
+        temp <- as.matrix(coef(adalasso.fit))
+        coef.adalasso <- matrix(0, p, dim(temp)[2])
+        coef.adalasso[idx, ] <- temp * multi
         return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso))
     }
 }
-adalasso <- function(X, Y, lambda, standardize = FALSE, alpha = c(1, 1), penalty = rep(1, ncol(X)),
-                        ...) {
+adalasso <- function(X, Y, lambda, standardize = FALSE, alpha = c(1, 1), penalty = rep(1, ncol(X)), ...) {
     UseMethod("adalasso", Y)
 }
