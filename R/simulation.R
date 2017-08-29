@@ -23,7 +23,7 @@ getz <- function(N, p) {
     }
     return(z)
 }
-bandy <- function(z, p_true, varatio = 4, method = 1, standardize = T, family = "gaussian") {
+bandy <- function(z, p_true, magnitude = 0.5, standardize = T, family = "gaussian") {
     if (standardize) {
         z <- scale(z)
     }
@@ -33,14 +33,10 @@ bandy <- function(z, p_true, varatio = 4, method = 1, standardize = T, family = 
     TrueBeta <- rep(0, p)
     TrueBeta_index <- sample(1:p, p_true, replace = FALSE)
     signbeta <- sample(c(-1, 1), p_true, replace = T)
-    mag <- sqrt(varatio/p_true)  # b=a, unif
-    if (method == 2) {
-        mag <- runif(p_true, mag/sqrt(7), mag/sqrt(7) * 4)  # b=4a, unif
-    }
-    if (method == 3) {
-        mag <- runif(p_true, 0.5, 1)
-    }
-    TrueBeta[TrueBeta_index] <- mag * signbeta
+    # mag <- sqrt(varatio/p_true)  # b=a, unif
+    # mag <- runif(p_true, mag/sqrt(7), mag/sqrt(7) * 4)  # b=4a, unif
+    # mag <- runif(p_true, 0.5, 1)
+    TrueBeta[TrueBeta_index] <- magnitude * signbeta
 
     if (family == "gaussian") {
         Y1 <- z %*% TrueBeta + rnorm(N, sd = 1)

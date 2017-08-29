@@ -30,3 +30,12 @@ uni_roc <- function(TrueBeta, pvalue) {
          recall = result[, 3],
          fpr = 1 - result[, 4])
 }
+uni_roc_tie <- function(TrueBeta, pvalue) {
+    result <- NULL
+    for (x in sort(pvalue)) {
+        result <- rbind(result, FPFNSeSpLik(TrueBeta, pvalue <= x))
+    }
+    list(precision = 1 - result[, 5],
+         recall = result[, 3],
+         fpr = 1 - result[, 4])
+}
