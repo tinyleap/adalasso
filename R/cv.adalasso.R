@@ -1,9 +1,11 @@
 cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, penalty = rep(1,
                                                                                                    ncol(X)), ...) {
+    pb <- txtProgressBar(0, k+1, style = 3)
     n <- nrow(X)
     p <- ncol(X)
     lasso.fit <- glmnet::cv.glmnet(X, Y, standardize = standardize, alpha = alpha[1], penalty.factor = penalty,
                            ...)
+    setTxtProgressBar(pb, 1)
     temp <- coef(lasso.fit, s = "lambda.min")
     coef.lasso <- temp[-1]
     inter.lasso <- temp[1]
@@ -41,6 +43,7 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
         Ytest <- Y[-train.idx]
         fit <- glmnet::cv.glmnet(Xtrain, Ytrain, standardize = standardize, alpha = alpha[1], lambda = lambda.list,
                          penalty.factor = penalty, ...)
+        setTxtProgressBar(pb, i+1)
         temp <- coef(fit, s = "lambda.min")
         coef <- temp[-1]
         inter <- temp[1]
@@ -135,6 +138,7 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
     temp <- coef(adalasso.fit, s = lambda.adalasso)
     coef.adalasso <- rep(0, p)
     coef.adalasso[idx2] <- temp[, 1] * multi2
+    close(pb)
     return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso))
 }
 expit <- function(x) {
