@@ -69,6 +69,7 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
     inter.adalasso <- temp[1]
     coef.adalasso <- rep(0, p)
     coef.adalasso[idx2] <- temp[-1] * multi2
+    close(pb)
     return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso, inter.adalasso = inter.adalasso,
                 inter.lasso = inter.lasso))
 }
@@ -138,7 +139,6 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
     temp <- coef(adalasso.fit, s = lambda.adalasso)
     coef.adalasso <- rep(0, p)
     coef.adalasso[idx2] <- temp[, 1] * multi2
-    close(pb)
     return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso))
 }
 expit <- function(x) {
