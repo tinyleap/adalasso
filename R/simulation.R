@@ -12,19 +12,22 @@ AR1 <- function(tau, m) {
     }
     return(R)
 }
+#' @export
 getz <- function(N, p) {
-    m1 = 100
-    Corr1 <- AR1(0.6, m1)
-    z = NULL
-    j = 0
-    while (j < (p/m1)) {
-        j = j + 1
-        z = cbind(z, mvtnorm::rmvnorm(N, mean = rep(0, m1), sigma = Corr1))
+    if (p%%100!=0) stop('p much be a multiple of 100!')
+    Corr1 <- AR1(0.6, 100)
+    z <- NULL
+    j <- 0
+    while (j < (p/100)) {
+        j <- j + 1
+        z <- cbind(z, mvtnorm::rmvnorm(N, sigma = Corr1))
     }
     return(z)
 }
-bandy <- function(z, p_true, magnitude = 0.5, standardize = T, family = "gaussian") {
+#' @export
+bandy <- function(z, p_true, standardize = T, mag = 0.5, family = "gaussian") {
     if (standardize) {
+        warning('Your data has been standardized!')
         z <- scale(z)
     }
     N <- nrow(z)
@@ -36,10 +39,10 @@ bandy <- function(z, p_true, magnitude = 0.5, standardize = T, family = "gaussia
     # mag <- sqrt(varatio/p_true)  # b=a, unif
     # mag <- runif(p_true, mag/sqrt(7), mag/sqrt(7) * 4)  # b=4a, unif
     # mag <- runif(p_true, 0.5, 1)
-    TrueBeta[TrueBeta_index] <- magnitude * signbeta
+    TrueBeta[TrueBeta_index] <- mag * signbeta
 
     if (family == "gaussian") {
-        Y1 <- z %*% TrueBeta + rnorm(N, sd = 1)
+        Y1 <- z %*% TrueBeta + rnorm(N)
         Y1 <- c(Y1)
         class(Y1) <- c(class(Y1), family)
         return(list(z = z, beta = TrueBeta, y = Y1))

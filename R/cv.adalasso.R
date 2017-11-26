@@ -1,3 +1,4 @@
+#' @export
 cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, penalty = rep(1,
                                                                                                    ncol(X)), ...) {
     pb <- txtProgressBar(0, k+1, style = 3)
@@ -71,19 +72,23 @@ cv.adalasso.gaussian <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k =
     coef.adalasso[idx2] <- temp[-1] * multi2
     close(pb)
     return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso, inter.adalasso = inter.adalasso,
-                inter.lasso = inter.lasso))
+                inter.lasso = inter.lasso, lambda.adalasso = lambda.adalasso))
 }
+#' @export
 cv.adalasso.binomial <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, penalty = rep(1,
                                                                                                    ncol(X)), ...) {
     cv.adalasso.gaussian(X, Y, family = "binomial", standardize = standardize, alpha = alpha, k = k, penalty = penalty,
                          ...)
 }
+#' @export
 cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, penalty = rep(1, ncol(X)),
                             ...) {
+    pb <- txtProgressBar(0, k+1, style = 3)
     n <- nrow(X)
     p <- ncol(X)
     lasso.fit <- glmnet::cv.glmnet(X, Y, family = "cox", standardize = standardize, alpha = alpha[1], penalty.factor = penalty,
                            ...)
+    setTxtProgressBar(pb, 1)
     temp <- coef(lasso.fit, s = "lambda.min")
     coef.lasso <- temp[, 1]
     idx <- which(coef.lasso != 0)
@@ -118,6 +123,7 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
         Ytest <- Y[-train.idx, , drop = FALSE]
         fit <- glmnet::cv.glmnet(Xtrain, Ytrain, family = "cox", standardize = standardize, alpha = alpha[1],
                          lambda = lambda.list, penalty.factor = penalty, ...)
+        setTxtProgressBar(pb, i+1)
         temp <- coef(fit, s = "lambda.min")
         coef <- temp[, 1]
         idx <- which(coef != 0)
@@ -139,7 +145,8 @@ cv.adalasso.cox <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, 
     temp <- coef(adalasso.fit, s = lambda.adalasso)
     coef.adalasso <- rep(0, p)
     coef.adalasso[idx2] <- temp[, 1] * multi2
-    return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso))
+    close(pb)
+    return(list(coef.adalasso = coef.adalasso, coef.lasso = coef.lasso, lambda.adalasso = lambda.adalasso))
 }
 expit <- function(x) {
     1/(1 + exp(-x))
@@ -160,6 +167,7 @@ Loglh = function(X, beta, Y) {
     }
     return(loglh)
 }
+#' @export
 cv.adalasso <- function(X, Y, standardize = FALSE, alpha = c(1, 1), k = 10, penalty = rep(1, ncol(X)),
                         ...) {
     UseMethod("cv.adalasso", Y)

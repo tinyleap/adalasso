@@ -8,6 +8,14 @@ FPFNSeSpLik = function(TrueBeta = TrueBeta, beta = beta) {
     names(output) <- c('FP', 'FN', 'Se', 'Sp', 'FDP')
     return(output)
 }
+#' @export
+rate <- function(...) {
+    CM <- caret::confusionMatrix(...)
+    res <- CM$byClass
+    res <- c(CM$table, res)
+    names(res)[1:4] <- c('TN', 'FP', 'FN', 'TP')
+    res
+}
 uni <- function(z, y) {
     p <- dim(z)[2]
     pvalue <- rep(0, p)

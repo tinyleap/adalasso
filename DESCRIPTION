@@ -13,3 +13,4 @@ Imports: glmnet
 Suggests: mvtnorm
 URL: http://github.com/tinyleap/adalasso
 BugReports: http://github.com/tinyleap/adalasso/issues
+RoxygenNote: 6.0.1
